@@ -1,6 +1,15 @@
 # sidekick.nvim
 An outline window that's always by your side (except for when it's not).
 
+```
+   _____ _     __     __ __ _      __   
+  / ___/(_)___/ /__  / //_/(_)____/ /__ 
+  \__ \/ / __  / _ \/ ,<  / / ___/ //_/ 
+ ___/ / / /_/ /  __/ /| |/ / /__/ ,<    
+/____/_/\__,_/\___/_/ |_/_/\___/_/|_|   
+=======================================
+```
+
 ### Roadmap
 
 - [ ] Use treesitter to generate outline for "standard" queries (`queries/$LANG/locals.scm`)  
