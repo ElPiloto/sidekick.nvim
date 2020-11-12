@@ -159,7 +159,7 @@ local function open_outline_window(do_kick, matches, highlight_info)
 	local tabpage = vim.api.nvim_get_current_tabpage()
 	local win_name = _make_window_name(tabpage)
 	local win, buf = nil, nil
-	if not open_windows[win_name] then
+	if not open_windows[win_name] or vim.fn.win_id2win(open_windows[win_name]) == 0 then
 		win, buf = make_outline_window(win_name)
 		open_windows[win_name] = win
 	else
@@ -345,9 +345,9 @@ end
 
 local function run()
 	local buf = vim.api.nvim_get_current_buf()
-	-- TODO(ElPiloto): print filetype, check empty buffer, etc.
 	if not sk_outline.can_parse_buffer(bufnr) then
-		print('Cannot parse filetype:')
+		local filetype = vim.bo.filetype
+		print('No parser for filetype: ' .. filetype)
 		return
 	end
 	local processed_matches, hl_info = get_outline()
