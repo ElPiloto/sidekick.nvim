@@ -6,3 +6,7 @@ endfun
 augroup SideKick
 	autocmd!
 augroup END
+
+fun! SideKickNoReload()
+	lua require("sidekick").run()
+endfun

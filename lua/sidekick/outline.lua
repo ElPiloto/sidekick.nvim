@@ -61,6 +61,11 @@ function M.get_definitions_and_scopes_in_match(match, query)
 	return defs, scopes
 end
 
+-- Convenience method.
+function M.can_parse_buffer(bufnr)
+	local lang = nts_parsers.get_buf_lang(bufnr)
+	return nts_parsers.has_parser(lang)
+end
 
 --STEP 1)
 function M.get_scope_and_definition_captures(bufnr, query_group)

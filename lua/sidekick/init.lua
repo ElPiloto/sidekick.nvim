@@ -5,6 +5,10 @@ nts_parsers = require('nvim-treesitter.parsers')
 nts_query = require('nvim-treesitter.query')
 ts_utils = require('nvim-treesitter.ts_utils')
 sk_outline = require('sidekick.outline')
+local api = vim.api
+
+local loaded_buffers = {}
+local open_windows = {}
 
 -- Splits string at new lines into table.
 local function split_str(str)
@@ -117,14 +121,11 @@ local function bufferOpen(win, header, matches)
 
 end
 
-
--- Make new window and move into it.
--- @param do_kick
-local function openNewBuffer(do_kick, matches, highlight_info)
-	win_name = 'Sidekick'
+local function make_outline_window(win_name)
+	--local win_name = 'Sidekick' .. tostring(vim.api.nvim_get_current_buf())
 	vim.api.nvim_command('keepalt botright vertical 1 split ' .. win_name)
-	win = vim.api.nvim_get_current_win()
-	buf = vim.api.nvim_get_current_buf()
+	local win = vim.api.nvim_get_current_win()
+	local buf = vim.api.nvim_get_current_buf()
 
 	--Disable wrapping
 	vim.api.nvim_win_set_option(win, 'wrap', false)
@@ -132,10 +133,42 @@ local function openNewBuffer(do_kick, matches, highlight_info)
 	vim.api.nvim_win_set_option(win, 'number', false)
 	vim.api.nvim_buf_set_option(buf, 'buftype', 'nofile')
 	vim.api.nvim_buf_set_option(buf, 'swapfile', false)
+	vim.api.nvim_win_set_option(win, 'wrap', false)
+	vim.bo.buflisted = false
+	vim.bo.modifiable = false
+	vim.bo.textwidth = 0
+	vim.bo.filetype = 'sidekick'
 	vim.api.nvim_command('hi NonText guifg=bg')
+	vim.wo.winfixwidth = true
+	vim.wo.spell = false
+	-- Additional options to try out
+	-- nolist, nowrap, breakindent?, number? nosigncolumn
+	return win, buf
+end
+
+
+local function _make_window_name(tabpage)
+	return 'SideKick(' .. tabpage .. ')'
+end
+
+
+-- Make new window and move into it.
+-- @param do_kick
+local function open_outline_window(do_kick, matches, highlight_info)
+	--TODO(ElPiloto): Make sure we have an open file otherwise this command will fail.
+	local tabpage = vim.api.nvim_get_current_tabpage()
+	local win_name = _make_window_name(tabpage)
+	local win, buf = nil, nil
+	if not open_windows[win_name] then
+		win, buf = make_outline_window(win_name)
+		open_windows[win_name] = win
+	else
+		win = open_windows[win_name]
+		api.nvim_set_current_win(win)
+	end
 	
 	-- Display some ascii art text
-	header, header_and_dude, header_and_poof = getSidekickText()
+	local header, header_and_dude, header_and_poof = getSidekickText()
 	vim.api.nvim_buf_set_option(buf, 'modifiable', true)
 	vim.api.nvim_buf_set_lines(buf, 0, #header_and_dude, false, header_and_dude)
 
@@ -251,7 +284,6 @@ function foldexpr()
 	-- If we're a blank line or surrounded by blank lines, we are not a fold.
 	if line == '' or (before == '' and after == '') then
 		return "0"
-		--return '<1'
 	elseif before_indent then
 		-- We're indented and have children.
 		if line_indent == before_indent and line_indent < after_indent then
@@ -267,6 +299,7 @@ function foldexpr()
 end
 
 local function get_outline()
+	-- TODO(ElPiloto): check filetype is parsable, otherwise return nil
 	local bufnr = vim.api.nvim_get_current_buf()
 	-- TODO(ElPiloto): makes 'locals' configurable.
 	scopes, defs, scopes_and_defs = sk_outline.get_scope_and_definition_captures(bufnr, 'locals')
@@ -302,10 +335,7 @@ local function get_outline()
 end
 
 
-local function run()
-	local processed_matches, hl_info = get_outline()
-	local do_kick = false
-	buf, win = openNewBuffer(do_kick, processed_matches, hl_info)
+local function enable_folding()
 	vim.wo.foldtext=[[luaeval("require('sidekick').foldtext()")]]
 	vim.wo.foldexpr=[[luaeval("require('sidekick').foldexpr()")]]
 	vim.wo.foldmethod='expr'
@@ -313,8 +343,24 @@ local function run()
 end
 
 
+local function run()
+	local buf = vim.api.nvim_get_current_buf()
+	-- TODO(ElPiloto): print filetype, check empty buffer, etc.
+	if not sk_outline.can_parse_buffer(bufnr) then
+		print('Cannot parse filetype:')
+		return
+	end
+	local processed_matches, hl_info = get_outline()
+	local do_kick = false
+	buf, win = open_outline_window(do_kick, processed_matches, hl_info)
+	enable_folding()
+end
+
+
 return {
 	run = run,
 	foldtext = foldtext,
-	foldexpr = foldexpr
+	foldexpr = foldexpr,
+	loaded_buffers = loaded_buffers,
+	open_windows = open_windows,
 }
