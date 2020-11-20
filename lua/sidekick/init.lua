@@ -9,37 +9,13 @@ M.per_buffer_jump_info = {}
 M.open_windows = {}
 M.last_parsed_buf = -1
 
---TODO(elpiloto): Jump from outline to definition.
---  1. Associate buffer information (e.g. line number) with sidekick entries.
---  (DONE)
---  2. Make keymappings for Outline window. (DONE)
-
 -- TODO(elpiloto): After jumping to definition, scroll screen upwards.  Make this configurable.
 
 --TODO(elpiloto): Decouple rendering from outline in order to:
 -- 1. Allow smarter rendering (e.g. isolated top-level nodes should be displayed as "outerNode"
 -- 2. interface to allow other tag definition backends (e.g. LSP or ctags).
 
--- TODO(elpiloto): Add custom fold highlighting while we wait for neovim bug
--- fix.
-
 --TODO(elpiloto): Better config: documentation and error-checking.
-
---TODO(elpiloto): Show LSP signatureHelp.
-
---TODO(elpiloto): Option to display filename in sidekick.
-
---TODO(elpiloto): Display empty outline window when appropriate.
--- Currently we simply don't open an outline window if the current buffer is empty or the filetype doesn't work.
-
---TODO(elpiloto): Update outline on editor events:
--- 1. buffer saved (DONE)
--- 2. change active window
-
--- TODO(elpiloto): Document highlight groups so that colorschemes can
--- explicitly support them.
-
--- TODO(elpiloto): Disable context.vim somehow. Look it up. Read some docs dammit.
 
 -- Splits string at new lines into table.
 local function split_str(str)

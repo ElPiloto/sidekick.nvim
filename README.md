@@ -10,6 +10,22 @@ An outline window that's always by your side (except for when it's not).
 =======================================
 ```
 
+### TODO
+
+- [x] Jump from outline to definition
+- [ ] Update outline on editor events
+  - [x] Buffer save
+  - [ ] Change active window
+- [ ] Document highlight groups so that colorschemes can explicitly support them.
+- [ ] Add custom fold highlight while we want for neovim bug about highlighting folds to get fixed.
+- [ ] Display filename (buffer name) in sidekick.
+- [ ] Allow empty sidekick window. Currently we just don't open an outline window if the current bufffer is empty or corresponds to an un-supported (by treesitter) filetype.
+- [ ] Set window settings to stop context.vim from popping up.
+- [ ] Add documentation.
+- [ ] Improve plugin configs
+  - [ ] Add supported options to documentation.
+  - [ ] Add error-checking / default values.
+
 ### Roadmap
 
 - [ ] Use treesitter to generate outline for "standard" queries (`queries/$LANG/locals.scm`)  
