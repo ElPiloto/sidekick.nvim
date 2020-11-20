@@ -32,7 +32,7 @@ An outline window that's always by your side (except for when it's not).
 
 ### Roadmap
 
-- [-] Use treesitter to generate outline for "standard" queries (`queries/$LANG/locals.scm`)
+- [ ] Use treesitter to generate outline for "standard" queries (`queries/$LANG/locals.scm`)
 - [ ] Sort by order or kind.  
 - [ ] Use treesitter to generate outline for custom queries (`queries/$LANG/sidekick.scm`)
 - [ ] Generate outline based on LSP.  
