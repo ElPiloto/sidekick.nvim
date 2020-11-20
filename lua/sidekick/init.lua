@@ -9,14 +9,6 @@ M.per_buffer_jump_info = {}
 M.open_windows = {}
 M.last_parsed_buf = -1
 
--- TODO(elpiloto): After jumping to definition, scroll screen upwards.  Make this configurable.
-
---TODO(elpiloto): Decouple rendering from outline in order to:
--- 1. Allow smarter rendering (e.g. isolated top-level nodes should be displayed as "outerNode"
--- 2. interface to allow other tag definition backends (e.g. LSP or ctags).
-
---TODO(elpiloto): Better config: documentation and error-checking.
-
 -- Splits string at new lines into table.
 local function split_str(str)
   local lines = {}

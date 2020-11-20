@@ -16,21 +16,25 @@ An outline window that's always by your side (except for when it's not).
 - [ ] Update outline on editor events
   - [x] Buffer save
   - [ ] Change active window
-- [ ] Document highlight groups so that colorschemes can explicitly support them.
-- [ ] Add custom fold highlight while we want for neovim bug about highlighting folds to get fixed.
 - [ ] Display filename (buffer name) in sidekick.
+- [ ] Add custom fold highlight while we want for neovim bug about highlighting folds to get fixed.
 - [ ] Allow empty sidekick window. Currently we just don't open an outline window if the current bufffer is empty or corresponds to an un-supported (by treesitter) filetype.
 - [ ] Set window settings to stop context.vim from popping up.
 - [ ] Add documentation.
 - [ ] Improve plugin configs
   - [ ] Add supported options to documentation.
   - [ ] Add error-checking / default values.
+- [ ] Decouple rendering from outline in order to:
+  1. Allow smarter rendering (e.g. isolated top-level nodes should be displayed as `outerNode`)
+  2. Interface to allow other tag definition backends (e.g. LSP or ctags)
+- [ ] After jumping to definition, scroll screen upwards (add config option to control this).
+- [ ] Document highlight groups so that colorschemes can explicitly support them.
 
 ### Roadmap
 
-- [ ] Use treesitter to generate outline for "standard" queries (`queries/$LANG/locals.scm`)  
+- [-] Use treesitter to generate outline for "standard" queries (`queries/$LANG/locals.scm`)
 - [ ] Sort by order or kind.  
-- [ ] Use treesitter to generate outline for custom queries (`queries/$LANG/sidekick.scm`)  
+- [ ] Use treesitter to generate outline for custom queries (`queries/$LANG/sidekick.scm`)
 - [ ] Generate outline based on LSP.  
 - [ ] Pop-up documentation for symbol when using LSP.  
 - [ ] After getting experience, re-write most of codebase using an extensible system to allow end users to populate outline window.
