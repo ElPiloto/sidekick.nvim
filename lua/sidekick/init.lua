@@ -133,6 +133,7 @@ end
 local function run_on_buf_write(buf)
   --Wrap autocmd in per-tabpage augroup to stop duplicate registration.
   local tabpage = api.nvim_get_current_tabpage()
+  -- TODO(elpiloto): Make util function for adding autocommands.
   local augroup = M._make_augroup_name(tabpage)
   vim.cmd('augroup ' .. augroup)
   local lua_callback_cmd = 'lua require(\'sidekick\').run()'
