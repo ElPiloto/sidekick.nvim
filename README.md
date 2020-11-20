@@ -1,7 +1,7 @@
 # sidekick.nvim
 An outline window that's always by your side (except for when it's not).
 
-## WIP: This plugin is not yet ready for widespread use.
+### WIP: This plugin is not yet ready for widespread use. It requires neovim (~nightly build) and `nvim-treesitter`.
 
 ```
    _____ _     __     __ __ _      __   
