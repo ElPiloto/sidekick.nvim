@@ -15,7 +15,7 @@ An outline window that's always by your side (except for when it's not).
 - [x] Jump from outline to definition
 - [ ] Update outline on editor events
   - [x] Buffer save
-  - [ ] Change active window
+  - [x] Change active window
 - [ ] Display filename (buffer name) in sidekick.
 - [ ] Add custom fold highlight while we want for neovim bug about highlighting folds to get fixed.
 - [ ] Allow empty sidekick window. Currently we just don't open an outline window if the current bufffer is empty or corresponds to an un-supported (by treesitter) filetype.
@@ -29,6 +29,13 @@ An outline window that's always by your side (except for when it's not).
   2. Interface to allow other tag definition backends (e.g. LSP or ctags)
 - [ ] After jumping to definition, scroll screen upwards (add config option to control this).
 - [ ] Document highlight groups so that colorschemes can explicitly support them.
+- [ ] Learn how to make tests for your plugin and test your code, guy.
+
+### BUGS
+
+- [ ] Outline is incomplete: functions are missing - may be a max line issue.
+- [ ] Outline is cut off for first entry.
+- [ ] Window contains parts of multiple outlines when switching windows (clear sidekick buffer).
 
 ### Roadmap
 

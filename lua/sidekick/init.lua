@@ -8,6 +8,7 @@ local M = {}
 M.per_buffer_jump_info = {}
 M.open_windows = {}
 M.last_parsed_buf = -1
+M.open_tabs = {}
 
 -- Splits string at new lines into table.
 local function split_str(str)
@@ -129,12 +130,66 @@ local function add_keymappings()
 end
 
 -- Re-run sidekick if buffer is written to using autocommands.
-local function add_buf_write_callback(buf)
-  --Wrap autocmd in augroup to stop duplicate registration.
-  local augroup = 'sidekick'
+local function run_on_buf_write(buf)
+  --Wrap autocmd in per-tabpage augroup to stop duplicate registration.
+  local tabpage = api.nvim_get_current_tabpage()
+  local augroup = M._make_augroup_name(tabpage)
   vim.cmd('augroup ' .. augroup)
   local lua_callback_cmd = 'lua require(\'sidekick\').run()'
   local full_cmd = 'autocmd! ' .. augroup .. ' BufWritePost <buffer=' .. tostring(buf) .. '> ' .. lua_callback_cmd
+  vim.cmd(full_cmd)
+  vim.cmd('augroup END')
+end
+
+-- Removes current tab from list of open tabs so we don't try to open sidekick
+-- when it has been closed.
+function M.remove_tab()
+  local tabpage = api.nvim_get_current_tabpage()
+  local win_name = M._make_window_name(tabpage)
+  local win_id = vim.fn.expand('<afile>')
+  if win_id == tostring(M.open_windows[win_name]) then
+    M.open_tabs[tabpage] = nil
+    print(vim.inspect(M.open_tabs))
+    -- TODO(elpiloto): Consider clearing out M.open_windows
+    local augroup = M._make_augroup_name(tabpage)
+    -- Delete all sidekick autocommands set up for this tab.
+    vim.cmd('augroup ' .. augroup)
+    vim.cmd('au!')
+    vim.cmd('augroup ' .. augroup)
+  end
+end
+
+--Keep track of what tabs have open pages.
+local function cleanup_on_close()
+  local tabpage = api.nvim_get_current_tabpage()
+  local augroup = M._make_augroup_name(tabpage)
+  vim.cmd('augroup ' .. augroup)
+  local lua_callback_cmd = 'lua require(\'sidekick\').remove_tab()'
+  local full_cmd = 'autocmd! ' .. augroup .. ' WinClosed * ' .. lua_callback_cmd
+  vim.cmd(full_cmd)
+  vim.cmd('augroup END')
+end
+
+-- Runs if sidekick is open for the current tabpage and buffer can be parsed but
+-- hasn't been.
+function M.maybe_run()
+  local tabpage = api.nvim_get_current_tabpage()
+  if M.open_tabs[tabpage] and vim.bo.filetype ~= 'sidekick' then
+    local buf = api.nvim_get_current_buf()
+    local win = api.nvim_get_current_win()
+    if M.last_parsed_buf ~= buf then
+      M.run()
+      api.nvim_set_current_win(win)
+    end
+  end
+end
+
+local function run_on_buf_enter()
+  local tabpage = api.nvim_get_current_tabpage()
+  local augroup = M._make_augroup_name(tabpage)
+  vim.cmd('augroup ' .. augroup)
+  local lua_callback_cmd = 'lua require(\'sidekick\').maybe_run()'
+  local full_cmd = 'autocmd! ' .. augroup .. ' BufEnter * ' .. lua_callback_cmd
   vim.cmd(full_cmd)
   vim.cmd('augroup END')
 end
@@ -152,7 +207,7 @@ local function make_outline_window(win_name)
   api.nvim_buf_set_option(buf, 'buftype', 'nofile')
   api.nvim_buf_set_option(buf, 'swapfile', false)
   api.nvim_win_set_option(win, 'wrap', false)
-  vim.bo.buflisted = false
+  vim.bo.buflisted = true
   vim.bo.modifiable = false
   vim.bo.textwidth = 0
   vim.bo.filetype = 'sidekick'
@@ -165,8 +220,12 @@ local function make_outline_window(win_name)
 end
 
 
-local function _make_window_name(tabpage)
-  return 'SideKick(' .. tabpage .. ')'
+function M._make_window_name(tabpage)
+  return '__SideKick__(' .. tabpage .. ')'
+end
+
+function M._make_augroup_name(tabpage)
+  return '__sidekick__' .. tabpage .. ''
 end
 
 local function set_icon_highlights()
@@ -211,7 +270,7 @@ end
 local function open_outline_window(do_kick, matches, highlight_info)
   --TODO(ElPiloto): Make sure we have an open file otherwise this command will fail.
   local tabpage = api.nvim_get_current_tabpage()
-  local win_name = _make_window_name(tabpage)
+  local win_name = M._make_window_name(tabpage)
   local win, buf = nil, nil
   if not M.open_windows[win_name] or vim.fn.win_id2win(M.open_windows[win_name]) == 0 then
     win, buf = make_outline_window(win_name)
@@ -238,6 +297,9 @@ local function open_outline_window(do_kick, matches, highlight_info)
   sk_outline.set_highlight(highlight_info)
   set_icon_highlights()
   add_keymappings()
+  cleanup_on_close()
+  --Track which windows we have been opened in.
+  M.open_tabs[tabpage] = true
   -- Also set sidekick_def_type_icons and outline as highlights
   --sidekick_outer_node_icon
   return buf, win
@@ -418,13 +480,14 @@ function M.run()
     return
   end
   M.last_parsed_buf = buf
-  print('Setting last parsed buf to ' .. tostring(M.last_parsed_buf))
+  --print('Setting last parsed buf to ' .. tostring(M.last_parsed_buf))
   local processed_matches, hl_info, jump_info = get_outline()
   M.per_buffer_jump_info[M.last_parsed_buf] = jump_info
   local do_kick = false
   open_outline_window(do_kick, processed_matches, hl_info)
   enable_folding()
-  add_buf_write_callback(buf)
+  run_on_buf_write(buf)
+  run_on_buf_enter()
 end
 
 
