@@ -18,7 +18,7 @@ It requires neovim (~nightly build) and `nvim-treesitter`.
 ### TODO
 
 - [x] Jump from outline to definition
-- [ ] Update outline on editor events
+- [x] Update outline on editor events
   - [x] Buffer save
   - [x] Change active window
 - [ ] Display filename (buffer name) in sidekick.
@@ -38,9 +38,10 @@ It requires neovim (~nightly build) and `nvim-treesitter`.
 
 ### BUGS
 
-- [ ] Outline is incomplete: functions are missing - may be a max line issue.
-- [ ] Outline is cut off for first entry.
+- [X] Outline is incomplete: functions are missing - may be a max line issue.
+- [X] Outline is cut off for first entry.
 - [ ] Window contains parts of multiple outlines when switching windows (clear sidekick buffer).
+- [ ] First entry is not foldable.
 
 ### Roadmap
 

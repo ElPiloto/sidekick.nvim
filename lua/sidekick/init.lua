@@ -21,6 +21,8 @@ end
 
 local function getSidekickText()
   -- luacheck: push ignore 613 (trailing whitespaces)
+  -- TODO(elpiloto): Figure out why we are stripping blank lines from the bottom
+  -- of this string.
   M.header = [[
 
    _____ _     __     __ __ _      __   
@@ -29,7 +31,7 @@ local function getSidekickText()
  ___/ / / /_/ /  __/ /| |/ / /__/ ,<    
 /____/_/\__,_/\___/_/ |_/_/\___/_/|_|   
 =======================================
-
+                                       
 ]]
   local lines = {}
   local num_lines = 0
@@ -239,7 +241,8 @@ local function set_icon_highlights()
     vim.cmd(highlight_link)
   end
 
-  local possible_ones = {'Special', 'Number', 'Function', 'Define', 'String', 'Keyword', 'Special', 'Operator'}
+  local possible_ones = {'Special', 'Number', 'Function', 'Define', 'String',
+                         'Keyword', 'Special', 'Operator', 'Function', 'Define', 'String', 'Keyword',}
   if vim.g.sidekick_def_type_icons then
     local i = 1
     for def_type, icon in pairs(vim.g.sidekick_def_type_icons) do
@@ -487,7 +490,9 @@ function M.run()
   local do_kick = false
   open_outline_window(do_kick, processed_matches, hl_info)
   enable_folding()
-  run_on_buf_write(buf)
+  if vim.g.sidekick_update_on_buf_write == 1 then
+    run_on_buf_write(buf)
+  end
   run_on_buf_enter()
 end
 
