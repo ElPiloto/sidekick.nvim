@@ -290,6 +290,9 @@ local function open_outline_window(do_kick, matches, highlight_info)
   api.nvim_buf_set_option(buf, 'modifiable', true)
   api.nvim_buf_set_lines(buf, 0, #header_and_dude, false, header_and_dude)
 
+  --Clear the dang buffer.
+  api.nvim_buf_set_lines(buf, 0, -1, false, {})
+
   -- Apparently this needs to be set after we insert text.
   api.nvim_buf_set_option(buf, 'modifiable', false)
 
@@ -484,7 +487,6 @@ function M.run()
     return
   end
   M.last_parsed_buf = buf
-  --print('Setting last parsed buf to ' .. tostring(M.last_parsed_buf))
   local processed_matches, hl_info, jump_info = get_outline()
   M.per_buffer_jump_info[M.last_parsed_buf] = jump_info
   local do_kick = false
@@ -495,6 +497,5 @@ function M.run()
   end
   run_on_buf_enter()
 end
-
 
 return M

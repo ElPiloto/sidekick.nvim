@@ -40,7 +40,7 @@ It requires neovim (~nightly build) and `nvim-treesitter`.
 
 - [X] Outline is incomplete: functions are missing - may be a max line issue.
 - [X] Outline is cut off for first entry.
-- [ ] Window contains parts of multiple outlines when switching windows (clear sidekick buffer).
+- [X] Window contains parts of multiple outlines when switching windows (clear sidekick buffer).
 - [ ] First entry is not foldable.
 
 ### Roadmap
