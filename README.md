@@ -35,7 +35,7 @@ It requires neovim (~nightly build) and `nvim-treesitter`.
 - [ ] After jumping to definition, scroll screen upwards (add config option to control this).
 - [ ] Document highlight groups so that colorschemes can explicitly support them.
 - [ ] Learn how to make tests for your plugin and test your code, guy.
-- [X] Use treesitter to generate outline for custom queries (~~~queries/$LANG/sidekick.scm~~~ `queries/$LANG/locals.scm`)
+- [X] Use treesitter to generate outline for custom queries (~~`queries/$LANG/sidekick.scm`~~ `queries/$LANG/locals.scm`)
 
 ### BUGS
 
