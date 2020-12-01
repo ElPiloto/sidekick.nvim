@@ -98,7 +98,8 @@ end
 function M.get_scope_and_definition_captures(bufnr, query_group)
   local lang = nts_parsers.get_buf_lang(bufnr)
   local parser = vim.treesitter.get_parser(bufnr, lang)
-  local tstree = parser:parse()
+  -- TODO(elpiloto): Add safety checks here.
+  local tstree = parser:parse()[1]
   query_group = query_group or 'locals'
   local query = ts_query.get_query(lang, query_group)
   local root = tstree:root()
