@@ -17,7 +17,7 @@ It requires neovim (~nightly build) and `nvim-treesitter`.
 
 ### Current configuration settings (WIP)
 
-Omit any of these settings at your own peril.
+Values below reflect sensible defaults.  If you do not have a font patched with nerd fonts, you should change the unicode/icons below.
 
 ```
 " To actually use sidekick!
