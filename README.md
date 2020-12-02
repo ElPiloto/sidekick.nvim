@@ -24,7 +24,11 @@ Omit any of these settings at your own peril.
 nmap <F8> :call SideKickNoReload()<CR>
 
 let g:sidekick_update_on_buf_write = 1
+" List of which definition types to display:
+" Example: 'function' tells sidekick to display any node found in a ts 'locals' query
+" that is captured in `queries/$LANG/locals.scm` as '@definition.function'.
 let g:sidekick_printable_def_types = ['function', 'class', 'type', 'module', 'parameter', 'method', 'field']
+" Mapping from definition type to the icon displayed for that type in the outline window.
 let g:sidekick_def_type_icons = {
 \    'class': "\uf0e8",
 \    'type': "\uf0e8",
@@ -38,6 +42,7 @@ let g:sidekick_def_type_icons = {
 \    'field': "\uf6de",
 \ }
 
+" Indicates which definition types should have their line number displayed in the outline window.
 let g:sidekick_line_num_def_types = {
 \    'class': 1,
 \    'type': 1,
@@ -46,11 +51,15 @@ let g:sidekick_line_num_def_types = {
 \    'method': 1,
 \ }
 
-let g:sidekick_line_num_separator = ""
+" What to display between definition and line number
+let g:sidekick_line_num_separator = " "
+" What to display to the left and right of the line number
 let g:sidekick_line_num_left = "\ue0b2"
 let g:sidekick_line_num_right = "\ue0b0"
+" What to display before outer vs inner definitions
 let g:sidekick_inner_node_icon = "\u251c\u2500\u25B8"
 let g:sidekick_outer_node_icon = "\u2570\u2500\u25B8"
+" What to display to left and right of def_type_icon
 let g:sidekick_left_bracket = "\u27ea"
 let g:sidekick_right_bracket = "\u27eb"
 

@@ -348,7 +348,7 @@ local function format_entry(def_name, def_type, indent_level, next_indent_level,
   str = str .. ' ' .. def_name
 
   if vim.g.sidekick_line_num_def_types[def_type] then
-    str = str .. vim.g.sidekick_line_num_separator .. ' '
+    str = str .. vim.g.sidekick_line_num_separator
     str = str .. vim.g.sidekick_line_num_left .. tostring(start_row) .. vim.g.sidekick_line_num_right
   end
   return str
