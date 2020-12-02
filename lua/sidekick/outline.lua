@@ -111,24 +111,24 @@ function M.get_scope_and_definition_captures(bufnr, query_group)
 
   local start_row, _, end_row, _ = root:range()
 
-  for pattern, match in query:iter_matches(root, bufnr, start_row, end_row+1) do
+  for _, match in query:iter_matches(root, bufnr, start_row, end_row+1) do
     --NB: Currently we assume there's only a single definition that lives
     --in the same match as a scope.  If this assumption is violated, please
     --send @ElPIloto an example.
     local defs, scopes, associated = M.get_definitions_and_scopes_in_match(match, query)
     if #scopes + #defs > 0 then
-      ts_def = TSOutline.new(defs, scopes, associated)
+      local ts_def = TSOutline.new(defs, scopes, associated)
       table.insert(all_defs, ts_def)
       if #scopes > 0 then
         scopes_to_tsdef[scopes[1][2]:id()] = ts_def
       end
       if #defs > 0 then
         for i, def in ipairs(defs) do
-          local ts_def = TSOutline.new({def}, scopes)
-          defs_to_tsdef[def[2]:id()] = ts_def
-          --defs_to_tsdef[defs[1][2]:id()] = ts_def
+          local ts_def2 = TSOutline.new({def}, scopes)
+          defs_to_tsdef[def[2]:id()] = ts_def2
+          --defs_to_tsdef[defs[1][2]:id()] = ts_def2
           if #defs >= 2 then
-            print(tostring(i), 'Multiple definitions in a scope', M.get_definition_info(ts_def), vim.inspect(defs))
+            print(tostring(i), 'Multiple definitions in a scope', M.get_definition_info(ts_def2), vim.inspect(defs))
           end
         end
       end
@@ -221,11 +221,13 @@ function M.set_highlight(highlight_info)
     -- Create syntax group called sidekick$sanitize(def_type)
     local str = "sidekick" .. def_type:gsub("%.", "_")
     local syntax_group = "syntax keyword  " .. str .. " " ..  table.concat(def_type_defs, " ")
+    table.insert(syntax_groups, str)
     vim.cmd(syntax_group)
 
     -- Associate that syntax group with existing types
     -- TODO (elpiloto): Make "String" configurable.
     local highlight_link = "highlight default link " .. str .. " String"
+    table.insert(highlight_links, str)
     vim.cmd(highlight_link)
   end
 end
