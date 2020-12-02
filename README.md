@@ -36,6 +36,9 @@ It requires neovim (~nightly build) and `nvim-treesitter`.
 - [ ] Document highlight groups so that colorschemes can explicitly support them.
 - [ ] Learn how to make tests for your plugin and test your code, guy.
 - [X] Use treesitter to generate outline for custom queries (~~`queries/$LANG/sidekick.scm`~~ `queries/$LANG/locals.scm`)
+- [X] Use treesitter to generate outline for "standard" queries (`queries/$LANG/locals.scm`)
+- [ ] Let users specify what definitions get shown for standard queries.   
+- [X] Display line number after definitions in outline window.
 
 ### BUGS
 
@@ -46,12 +49,10 @@ It requires neovim (~nightly build) and `nvim-treesitter`.
 
 ### Roadmap
 
-- [ ] Use treesitter to generate outline for "standard" queries (`queries/$LANG/locals.scm`)
 - [ ] Sort by order or kind.  
 - [ ] Generate outline based on LSP.  
 - [ ] Pop-up documentation for symbol when using LSP.  
 - [ ] After getting experience, re-write most of codebase using an extensible system to allow end users to populate outline window.
-- [ ] Let users specify what definitions get shown for standard queries.   
 
 
 ### Maybe features  

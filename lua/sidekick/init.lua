@@ -152,7 +152,6 @@ function M.remove_tab()
   local win_id = vim.fn.expand('<afile>')
   if win_id == tostring(M.open_windows[win_name]) then
     M.open_tabs[tabpage] = nil
-    print(vim.inspect(M.open_tabs))
     -- TODO(elpiloto): Consider clearing out M.open_windows
     local augroup = M._make_augroup_name(tabpage)
     -- Delete all sidekick autocommands set up for this tab.
@@ -237,9 +236,16 @@ local function set_icon_highlights()
     syntax_group = syntax_group .. table.concat({vim.g.sidekick_outer_node_icon, vim.g.sidekick_inner_node_icon}, '')
     syntax_group = syntax_group .. "]'"
     vim.cmd(syntax_group)
-    local highlight_link = "highlight default link OuterInnerNodes GruvBoxBlue"
+    -- TODO(elpiloto): Expose these highlight groups.
+    local highlight_link = "highlight link OuterInnerNodes Comment"
     vim.cmd(highlight_link)
   end
+
+  -- Define custom highlight group for numbers.
+  local syntax_group = "syntax match SidekickLineNumbers /\\d/"
+  vim.cmd(syntax_group)
+  local highlight_link = "highlight link SidekickLineNumbers lCursor"
+  vim.cmd(highlight_link)
 
   local possible_ones = {'Special', 'Number', 'Function', 'Define', 'String',
                          'Keyword', 'Special', 'Operator', 'Function', 'Define', 'String', 'Keyword',}
@@ -323,7 +329,7 @@ local function entry_prefix(indent_level, is_last_node)
   return prefix
 end
 
-local function format_entry(def_name, def_type, indent_level, next_indent_level)
+local function format_entry(def_name, def_type, indent_level, next_indent_level, start_row)
   local is_last_node = false
   local next_node_higher = false
   if not next_indent_level then
@@ -340,6 +346,11 @@ local function format_entry(def_name, def_type, indent_level, next_indent_level)
     str = str .. vim.g.sidekick_left_bracket .. vim.g.sidekick_def_type_icons[def_type] .. vim.g.sidekick_right_bracket
   end
   str = str .. ' ' .. def_name
+
+  if vim.g.sidekick_line_num_def_types[def_type] then
+    str = str .. vim.g.sidekick_line_num_separator .. ' '
+    str = str .. vim.g.sidekick_line_num_left .. tostring(start_row) .. vim.g.sidekick_line_num_right
+  end
   return str
 end
 
@@ -429,7 +440,10 @@ local function get_outline()
           next_i = next_i + 1
         end
       end
-      table.insert(indented_strings, format_entry(info[1], info[2], info[3], next_indent_level))
+      table.insert(
+        indented_strings,
+        format_entry(info[1], info[2], info[3], next_indent_level, info[4])
+      )
       jump_info[line_nr] = {info[4], info[5]}
       line_nr = line_nr + 1
       if  next_indent_level and next_indent_level < info[3] then
