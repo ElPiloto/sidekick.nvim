@@ -15,6 +15,47 @@ It requires neovim (~nightly build) and `nvim-treesitter`.
 
 ![Sidekick Demo](./.github/images/sidekick_demo.jpg)
 
+### Current configuration settings (WIP)
+
+Omit any of these settings at your own peril.
+
+```
+" To actually use sidekick!
+nmap <F8> :call SideKickNoReload()<CR>
+
+let g:sidekick_update_on_buf_write = 1
+let g:sidekick_printable_def_types = ['function', 'class', 'type', 'module', 'parameter', 'method', 'field']
+let g:sidekick_def_type_icons = {
+\    'class': "\uf0e8",
+\    'type': "\uf0e8",
+\    'function': "\uf794",
+\    'module': "\uf7fe",
+\    'arc_component': "\uf6fe",
+\    'sweep': "\uf7fd",
+\    'parameter': "•",
+\    'var': "v",
+\    'method': "\uf794",
+\    'field': "\uf6de",
+\ }
+
+let g:sidekick_line_num_def_types = {
+\    'class': 1,
+\    'type': 1,
+\    'function': 1,
+\    'module': 1,
+\    'method': 1,
+\ }
+
+let g:sidekick_line_num_separator = ""
+let g:sidekick_line_num_left = "\ue0b2"
+let g:sidekick_line_num_right = "\ue0b0"
+let g:sidekick_inner_node_icon = "\u251c\u2500\u25B8"
+let g:sidekick_outer_node_icon = "\u2570\u2500\u25B8"
+let g:sidekick_left_bracket = "\u27ea"
+let g:sidekick_right_bracket = "\u27eb"
+
+```
+
 ### TODO
 
 - [x] Jump from outline to definition
