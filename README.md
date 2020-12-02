@@ -65,6 +65,12 @@ let g:sidekick_right_bracket = "\u27eb"
 
 ```
 
+### Requirements
+
+- neovim nightly
+- default config requires patched nerd fonts
+- nerdtree.nvim
+
 ### TODO
 
 - [x] Jump from outline to definition
@@ -78,7 +84,7 @@ let g:sidekick_right_bracket = "\u27eb"
 - [ ] Add documentation.
 - [ ] Improve plugin configs
   - [ ] Add supported options to documentation.
-  - [ ] Add error-checking / default values.
+  - [X] Add error-checking / default values.
 - [ ] Decouple rendering from outline in order to:
   1. Allow smarter rendering (e.g. isolated top-level nodes should be displayed as `outerNode`)
   2. Interface to allow other tag definition backends (e.g. LSP or ctags)
