@@ -315,7 +315,7 @@ local function open_outline_window(do_kick, matches, highlight_info)
   M.open_tabs[tabpage] = true
   -- Also set sidekick_def_type_icons and outline as highlights
   --sidekick_outer_node_icon
-  return buf, win
+  return win, bug
 end
 
 
@@ -495,7 +495,25 @@ function M.run()
   local buf = api.nvim_get_current_buf()
   if not sk_outline.can_parse_buffer(buf) then
     local filetype = vim.bo.filetype
-    print('No parser for filetype: ' .. filetype)
+    local tabpage = api.nvim_get_current_tabpage()
+    local win_name = M._make_window_name(tabpage)
+    if M.open_windows[win_name] then
+      local header, _, _ = getSidekickText()
+      local msg = 'No parser for filetype: ' .. filetype
+      local sidekick_buf = api.nvim_win_get_buf(M.open_windows[win_name])
+      -- TODO(elpiloto): Make a fn that modifies modifiable and inserts text and
+      -- resets modifiable.
+      api.nvim_buf_set_option(sidekick_buf, 'modifiable', true)
+      -- Delete lines
+      api.nvim_buf_set_lines(sidekick_buf, 0, -1, false, {})
+      -- Add header
+      api.nvim_buf_set_lines(sidekick_buf, 0, #header, false, header)
+      api.nvim_buf_set_lines(sidekick_buf, #header, #header+2, false, {'', msg})
+      api.nvim_buf_set_option(sidekick_buf, 'modifiable', false)
+      -- TODO(elpiloto): Even if we cannot display anything for the current
+      -- buffer, we need to add an auto-command so that SideKick will trigger
+      -- when the window updates.
+    end
     return
   end
   M.last_parsed_buf = buf

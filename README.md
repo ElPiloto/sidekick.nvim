@@ -79,7 +79,7 @@ let g:sidekick_right_bracket = "\u27eb"
   - [x] Change active window
 - [ ] Display filename (buffer name) in sidekick.
 - [ ] Add custom fold highlight while we want for neovim bug about highlighting folds to get fixed.
-- [ ] Allow empty sidekick window. Currently we just don't open an outline window if the current bufffer is empty or corresponds to an un-supported (by treesitter) filetype.
+- [X] Allow empty sidekick window. Currently we just don't open an outline window if the current bufffer is empty or corresponds to an un-supported (by treesitter) filetype.
 - [ ] Set window settings to stop context.vim from popping up.
 - [ ] Add documentation.
 - [ ] Improve plugin configs
@@ -102,6 +102,7 @@ let g:sidekick_right_bracket = "\u27eb"
 - [X] Outline is cut off for first entry.
 - [X] Window contains parts of multiple outlines when switching windows (clear sidekick buffer).
 - [ ] First entry is not foldable.
+- [ ] Add auto-command to run Sidekick on BufEnter for buffers that cannot be parsed.
 
 ### Roadmap
 
