@@ -95,6 +95,7 @@ let g:sidekick_right_bracket = "\u27eb"
 - [X] Use treesitter to generate outline for "standard" queries (`queries/$LANG/locals.scm`)
 - [ ] Let users specify what definitions get shown for standard queries.   
 - [X] Display line number after definitions in outline window.
+- [X] Add mouse support: double-click will either jump to definition or toggle fold via `:normal za`
 
 ### BUGS
 

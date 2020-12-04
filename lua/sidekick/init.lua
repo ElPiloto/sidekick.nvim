@@ -21,6 +21,7 @@ end
 
 local function getSidekickText()
   -- luacheck: push ignore 613 (trailing whitespaces)
+  -- luacheck: push ignore 611 Empty line
   -- TODO(elpiloto): Figure out why we are stripping blank lines from the bottom
   -- of this string.
   M.header = [[
@@ -59,6 +60,7 @@ o________/    /____/_/\__,_/\___/_/ |_/_/\___/_/|_|
               =======================================
 
 ]]
+  -- luacheck: pop
   -- luacheck: pop
   return split_str(M.header), split_str(header_and_dude), split_str(header_and_poof)
 end
@@ -127,8 +129,9 @@ end
 
 -- NB: Must be called from within sidekick window.
 local function add_keymappings()
-  -- jump to definition on <CR>
+  -- jump to definition on <CR> or double-click
   api.nvim_buf_set_keymap(0, 'n', '<CR>', ':lua require "sidekick".jump_to_definition()<CR>', { silent = true })
+  api.nvim_buf_set_keymap(0, 'n', '<2-LeftMouse>', ':lua require "sidekick".jump_or_fold()<CR>', { silent = true })
 end
 
 -- Re-run sidekick if buffer is written to using autocommands.
@@ -344,6 +347,8 @@ local function format_entry(def_name, def_type, indent_level, next_indent_level,
   local str = entry_prefix(indent_level, is_last_node)
   if vim.g.sidekick_def_type_icons[def_type] then
     str = str .. vim.g.sidekick_left_bracket .. vim.g.sidekick_def_type_icons[def_type] .. vim.g.sidekick_right_bracket
+  else
+    str = str .. vim.g.sidekick_left_bracket .. str.sub(def_type, 0, 2) .. vim.g.sidekick_right_bracket
   end
   str = str .. ' ' .. def_name
 
@@ -467,6 +472,23 @@ local function enable_folding()
   vim.wo.foldexpr=[[luaeval("require('sidekick').foldexpr()")]]
   vim.wo.foldmethod='expr'
   --vim.wo.foldcolumn='4'
+end
+
+
+function M.jump_or_fold()
+  local cursor_pos = api.nvim_win_get_cursor(0)
+  local line = api.nvim_get_current_line()
+  local index = string.find(line, vim.g.sidekick_right_bracket)
+  -- N.B. win_get_cursor has 0-based column indexing. We do not account for this
+  -- difference (lua is 1-based) which means we're checking if the cursor_pos is
+  -- one ahead of `index + len...` We do this to account for a single white
+  -- space after right bracket.
+  if cursor_pos[2] < index + string.len(vim.g.sidekick_right_bracket) then
+    local fold_cmd = 'silent! normal za'
+    vim.cmd(fold_cmd)
+  else
+    M.jump_to_definition()
+  end
 end
 
 
