@@ -201,7 +201,9 @@ function M.build_outline(root)
       end
       local start_row, start_col, end_row, end_col = tsdef.definition_node:range()
       local def_name, def_type = M.get_definition_info(tsdef)
-      table.insert(ranges, {def_name, def_type, indent, start_row, start_col, end_row, end_col})
+      -- N.B. Add + 1 to rows because TreeSitter is 0-based and Vim lines are
+      -- 1-based
+      table.insert(ranges, {def_name, def_type, indent, start_row + 1, start_col, end_row + 1, end_col})
       indent = indent + 1
     end
     if tsdef.children then

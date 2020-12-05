@@ -506,7 +506,7 @@ function M.jump_to_definition()
       local win = find_win_for_buf(M.last_parsed_buf)
       if win then
         api.nvim_set_current_win(win)
-        api.nvim_win_set_cursor(0, { row_col[1] + 1, row_col[2] })
+        api.nvim_win_set_cursor(0, { row_col[1], row_col[2] })
       end
     end
   end
