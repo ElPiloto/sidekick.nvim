@@ -93,9 +93,16 @@ let g:sidekick_right_bracket = "\u27eb"
 - [ ] Learn how to make tests for your plugin and test your code, guy.
 - [X] Use treesitter to generate outline for custom queries (~~`queries/$LANG/sidekick.scm`~~ `queries/$LANG/locals.scm`)
 - [X] Use treesitter to generate outline for "standard" queries (`queries/$LANG/locals.scm`)
-- [ ] Let users specify what definitions get shown for standard queries.   
+- [ ] Let users specify what definitions get shown for standard queries.
 - [X] Display line number after definitions in outline window.
 - [X] Add mouse support: double-click will either jump to definition or toggle fold via `:normal za`
+- [ ] Setup custom sidekick query files for places where our needs are in conflict with locals.scm and we want to extend it without potentially messing up other functionality.
+  - [ ] Add everything we've "fixed" (or possibly broken) with lua and python locals.scm locally.
+  - [ ] Make query file name customizable: buffer-level, if not available, global option, if not available 'locals.scm'.
+  - [ ] Demo on busted.lua using autocmd.
+- [ ] Add "ignore" filetype config option where sidekick leaves outline up (e.g. nerdtree, startify, etc.)
+- [ ] Ignore jump to quickfix or location list.
+- [ ] Add option to not print certain identifiers (e.g. if printing @definition.var, ignore variables defined as "_").
 
 ### BUGS
 
@@ -107,13 +114,13 @@ let g:sidekick_right_bracket = "\u27eb"
 
 ### Roadmap
 
-- [ ] Sort by order or kind.  
-- [ ] Generate outline based on LSP.  
-- [ ] Pop-up documentation for symbol when using LSP.  
+- [ ] Sort by order or kind.
+- [ ] Pop-up documentation for symbol when using LSP.
 - [ ] After getting experience, re-write most of codebase using an extensible system to allow end users to populate outline window.
 
 
 ### Maybe features  
 
-- [ ] Generate outline based on tags file.  
+- [ ] Generate outline based on tags file.
 - [ ] When using treesitter for outline *and* LSP is available, pop-up documentation for symbol.
+- [ ] Generate outline based on LSP.
