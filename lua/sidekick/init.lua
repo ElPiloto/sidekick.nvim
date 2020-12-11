@@ -127,6 +127,23 @@ local function bufferOpen(win, buf, header, matches)
 
 end
 
+local function get_jump_info()
+  -- TODO(elpiloto): Make this more robust when we switch to the render interface.
+  local start_outline_line_nr = #split_str(M.header)
+  local abs_line_nr = vim.fn.line('.')
+  local relative_line_nr = abs_line_nr - start_outline_line_nr
+  -- TODO(elpiloto): Reload cursor location (a.k.a. nodes from Treesitter) if
+  -- needed.  This may be the case if the buffer has been modified since we
+  -- last populated per_buffer_jump_info.
+  if M.per_buffer_jump_info[M.last_parsed_buf] then
+    if M.per_buffer_jump_info[M.last_parsed_buf][relative_line_nr] then
+      local row_col =  M.per_buffer_jump_info[M.last_parsed_buf][relative_line_nr]
+      return row_col
+    end
+  end
+  return nil
+end
+
 -- NB: Must be called from within sidekick window.
 local function add_keymappings()
   -- jump to definition on <CR> or double-click
@@ -318,7 +335,7 @@ local function open_outline_window(do_kick, matches, highlight_info)
   M.open_tabs[tabpage] = true
   -- Also set sidekick_def_type_icons and outline as highlights
   --sidekick_outer_node_icon
-  return win, bug
+  return win, buf
 end
 
 
@@ -492,23 +509,16 @@ function M.jump_or_fold()
 end
 
 
+
 function M.jump_to_definition()
-  -- TODO(elpiloto): Make this more robust when we switch to the render interface.
-  local start_outline_line_nr = #split_str(M.header)
-  local abs_line_nr = vim.fn.line('.')
-  local relative_line_nr = abs_line_nr - start_outline_line_nr
-  -- TODO(elpiloto): Reload cursor location (a.k.a. nodes from Treesitter) if
-  -- needed.  This may be the case if the buffer has been modified since we
-  -- last populated per_buffer_jump_info.
-  if M.per_buffer_jump_info[M.last_parsed_buf] then
-    if M.per_buffer_jump_info[M.last_parsed_buf][relative_line_nr] then
-      local row_col =  M.per_buffer_jump_info[M.last_parsed_buf][relative_line_nr]
-      local win = find_win_for_buf(M.last_parsed_buf)
-      if win then
-        api.nvim_set_current_win(win)
-        api.nvim_win_set_cursor(0, { row_col[1], row_col[2] })
-      end
-    end
+  local row_col = get_jump_info()
+  if row_col == nil then
+    return
+  end
+  local win = find_win_for_buf(M.last_parsed_buf)
+  if win then
+    api.nvim_set_current_win(win)
+    api.nvim_win_set_cursor(0, { row_col[1], row_col[2] })
   end
 end
 
