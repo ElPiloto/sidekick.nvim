@@ -1,7 +1,12 @@
 local api = vim.api
 
 local sk_outline = require('sidekick.outline')
+-- luacheck: push ignore 211 (unused variable)
+-- TODO(elpiloto): make debug level based on sidekick option.
+local log = require('plenary.log').new({ plugin = 'sidekick.nvim', level='debug' })
+-- luacheck: pop
 
+local UNPARSEABLE_BUF_TYPES = {'quickfix', 'nofile', 'terminal', 'prompt', 'help'}
 local M = {}
 
 -- This holds a mapping from a dict[buffer_id --> dict[line_nr --> cursor_position]]
@@ -194,13 +199,13 @@ end
 
 -- Runs if sidekick is open for the current tabpage and buffer can be parsed but
 -- hasn't been.
-function M.maybe_run()
+function M.maybe_run(entry_point)
   local tabpage = api.nvim_get_current_tabpage()
   if M.open_tabs[tabpage] and vim.bo.filetype ~= 'sidekick' then
     local buf = api.nvim_get_current_buf()
     local win = api.nvim_get_current_win()
     if M.last_parsed_buf ~= buf then
-      M.run()
+      M.run(entry_point)
       api.nvim_set_current_win(win)
     end
   end
@@ -210,9 +215,14 @@ local function run_on_buf_enter()
   local tabpage = api.nvim_get_current_tabpage()
   local augroup = M._make_augroup_name(tabpage)
   vim.cmd('augroup ' .. augroup)
-  local lua_callback_cmd = 'lua require(\'sidekick\').maybe_run()'
-  local full_cmd = 'autocmd! ' .. augroup .. ' BufEnter * ' .. lua_callback_cmd
-  vim.cmd(full_cmd)
+  -- TODO(elpiloto): For some reason, Startify does not trigger BufEnter. If we
+  -- really need, we can add 'FileType' below, but that would cause multiple
+  -- callbacks. We could also use 'StartifyReady' with minor tweaks to cmd.
+  for _, event in ipairs({'BufEnter'}) do
+    local lua_callback_cmd = 'lua require("sidekick").maybe_run("'.. event ..'")'
+    local full_cmd = 'autocmd! ' .. augroup .. ' ' .. event .. ' * ' .. lua_callback_cmd
+    vim.cmd(full_cmd)
+  end
   vim.cmd('augroup END')
 end
 
@@ -523,15 +533,27 @@ function M.jump_to_definition()
 end
 
 
-function M.run()
+function M.run(entry_point)
   local buf = api.nvim_get_current_buf()
   if not sk_outline.can_parse_buffer(buf) then
+    -- If we cannot modify it, it is likely a buffer belonging to some plugin
+    -- e.g. NERDTree, Startify
+    local modifiable = vim.bo.modifiable
     local filetype = vim.bo.filetype
+    local unparseable_buftype = vim.tbl_contains(UNPARSEABLE_BUF_TYPES, vim.bo.buftype)
+    if not modifiable or filetype == "" or unparseable_buftype then
+      -- Make sure our buffer is at visible.
+      if vim.api.nvim_buf_is_loaded(M.last_parsed_buf) then
+        return
+      end
+    end
     local tabpage = api.nvim_get_current_tabpage()
     local win_name = M._make_window_name(tabpage)
     if M.open_windows[win_name] then
       local header, _, _ = getSidekickText()
       local msg = 'No parser for filetype: ' .. filetype
+      local debug_msg = msg .. ', entered via ' .. tostring(entry_point)
+      log.debug(debug_msg)
       local sidekick_buf = api.nvim_win_get_buf(M.open_windows[win_name])
       -- TODO(elpiloto): Make a fn that modifies modifiable and inserts text and
       -- resets modifiable.
@@ -545,6 +567,8 @@ function M.run()
       -- TODO(elpiloto): Even if we cannot display anything for the current
       -- buffer, we need to add an auto-command so that SideKick will trigger
       -- when the window updates.
+      -- This may work.
+      M.last_parsed_buf = -1
     end
     return
   end
