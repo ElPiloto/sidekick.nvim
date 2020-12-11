@@ -176,7 +176,13 @@ end
 function M.get_definition_info(tsdef)
   local def_name = ts_utils.get_node_text(tsdef.definition_node)[1]
   if tsdef['associated'] then
-    def_name = ts_utils.get_node_text(tsdef.associated)[1] .. '.' .. def_name
+    -- This was motivated by lua (M['someCrazyFunctionName'] = function()). May
+    -- break other places or need to be generalized.
+    if string.match(def_name, "'") or string.match(def_name, '"') then
+      def_name = ts_utils.get_node_text(tsdef.associated)[1] .. '[' .. def_name .. ']'
+    else
+      def_name = ts_utils.get_node_text(tsdef.associated)[1] .. '.' .. def_name
+    end
   end
   local def_type = tsdef.definition_type:gsub('definition%.', '')
   return def_name, def_type
