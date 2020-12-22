@@ -277,16 +277,17 @@ local function set_icon_highlights()
   local highlight_link = "highlight link SidekickLineNumbers lCursor"
   vim.cmd(highlight_link)
 
-  local possible_ones = {'Special', 'Number', 'Function', 'Define', 'String',
-                         'Keyword', 'Special', 'Operator', 'Function', 'Define', 'String', 'Keyword',}
+  local some_hl_groups = {'Special', 'Number', 'Function', 'Define', 'String',
+    'Keyword', 'Special', 'Operator', 'Function', 'Define', 'String', 'Keyword',}
   if vim.g.sidekick_def_type_icons then
     local i = 1
     for def_type, icon in pairs(vim.g.sidekick_def_type_icons) do
       local group_name = "sidekick" .. def_type
-      local syntax_group = "syntax keyword " .. group_name .. " " ..  icon
-      vim.cmd(syntax_group)
-      local highlight_link = "highlight default link " .. group_name .. " " .. possible_ones[i]
-      vim.cmd(highlight_link)
+      local sg_cmd = "syntax keyword " .. group_name .. " " ..  icon
+      vim.cmd(sg_cmd)
+      local next_hl_group = some_hl_groups[1 + (i % #some_hl_groups)]
+      local hl_cmd = "highlight default link " .. group_name .. " " .. next_hl_group
+      vim.cmd(hl_cmd)
       i = i + 1
     end
   end
@@ -585,3 +586,4 @@ function M.run(entry_point)
 end
 
 return M
+
