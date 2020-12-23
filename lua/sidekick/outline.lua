@@ -1,6 +1,10 @@
 local ts_query = require 'vim.treesitter.query'
 local nts_parsers = require('nvim-treesitter.parsers')
 local ts_utils = require('nvim-treesitter.ts_utils')
+-- luacheck: push ignore 211 (unused variable)
+-- TODO(elpiloto): make debug level based on sidekick option.
+local log = require('plenary.log').new({ plugin = 'sidekick.nvim', level='debug' })
+-- luacheck: pop
 
 --DELETE
 --local parser = vim.treesitter.get_parser(py_bufnr, 'python')
@@ -13,6 +17,7 @@ local M = {}
 
 local TSOutline = {}
 TSOutline.__index = TSOutline
+
 
 -- Contains definition and/or scope information.
 -- At least one of `def` or `scope` must be populated.
@@ -83,7 +88,7 @@ function M.get_definitions_and_scopes_in_match(match, query)
       )
     end
   else
-      associated = nil
+    associated = nil
   end
   return defs, scopes, associated
 end
@@ -100,10 +105,7 @@ function M.get_scope_and_definition_captures(bufnr, query_group)
   local parser = vim.treesitter.get_parser(bufnr, lang)
   -- TODO(elpiloto): Add safety checks here.
   local tstree = parser:parse()[1]
-  query_group = query_group or 'locals'
-  local query = ts_query.get_query(lang, query_group)
   local root = tstree:root()
-
   -- Return values
   local scopes_to_tsdef = {}
   local defs_to_tsdef = {}
@@ -111,24 +113,29 @@ function M.get_scope_and_definition_captures(bufnr, query_group)
 
   local start_row, _, end_row, _ = root:range()
 
-  for _, match in query:iter_matches(root, bufnr, start_row, end_row+1) do
-    --NB: Currently we assume there's only a single definition that lives
-    --in the same match as a scope.  If this assumption is violated, please
-    --send @ElPIloto an example.
-    local defs, scopes, associated = M.get_definitions_and_scopes_in_match(match, query)
-    if #scopes + #defs > 0 then
-      local ts_def = TSOutline.new(defs, scopes, associated)
-      table.insert(all_defs, ts_def)
-      if #scopes > 0 then
-        scopes_to_tsdef[scopes[1][2]:id()] = ts_def
-      end
-      if #defs > 0 then
-        for i, def in ipairs(defs) do
-          local ts_def2 = TSOutline.new({def}, scopes)
-          defs_to_tsdef[def[2]:id()] = ts_def2
-          --defs_to_tsdef[defs[1][2]:id()] = ts_def2
-          if #defs >= 2 then
-            print(tostring(i), 'Multiple definitions in a scope', M.get_definition_info(ts_def2), vim.inspect(defs))
+  query_group = query_group or 'locals'
+  -- This does not work with the current API, but hopefully it will be submitted
+  -- soon (current API only works with a single string for query_group).
+  local query = ts_query.get_query(lang, {query_group, 'sidekick'})
+  if query ~= nil then
+    for _, match in query:iter_matches(root, bufnr, start_row, end_row+1) do
+      --NB: Currently we assume there's only a single definition that lives
+      --in the same match as a scope.  If this assumption is violated, please
+      --send @ElPIloto an example.
+      local defs, scopes, associated = M.get_definitions_and_scopes_in_match(match, query)
+      if #scopes + #defs > 0 then
+        local ts_def = TSOutline.new(defs, scopes, associated)
+        table.insert(all_defs, ts_def)
+        if #scopes > 0 then
+          scopes_to_tsdef[scopes[1][2]:id()] = ts_def
+        end
+        if #defs > 0 then
+          for i, def in ipairs(defs) do
+            local ts_def2 = TSOutline.new({def}, scopes)
+            defs_to_tsdef[def[2]:id()] = ts_def2
+            if #defs >= 2 then
+              print(tostring(i), 'Multiple definitions in a scope', M.get_definition_info(ts_def2), vim.inspect(defs))
+            end
           end
         end
       end
@@ -197,22 +204,25 @@ function M.build_outline(root)
   -- Builds objects needed for an outline.
   -- @param tsdef current_tsdef being processed
   local function _build_outline(tsdef, indent)
-    if tsdef.definition_node then
+    if tsdef and tsdef.definition_node then
       local def_text = ts_utils.get_node_text(tsdef.definition_node)[1]
       local def_type = tsdef.definition_type
-      if not highlight_info[def_type] then
-        highlight_info[def_type] = {def_text}
-      else
-        table.insert(highlight_info[def_type], def_text)
+      local clean_def_type = def_type:gsub('definition.', '')
+      if vim.tbl_contains(vim.g.sidekick_printable_def_types, clean_def_type) then
+        if not highlight_info[def_type] then
+          highlight_info[def_type] = {def_text}
+        else
+          table.insert(highlight_info[def_type], def_text)
+        end
+        local start_row, start_col, end_row, end_col = tsdef.definition_node:range()
+        local def_name, def_type = M.get_definition_info(tsdef)
+        -- N.B. Add + 1 to rows because TreeSitter is 0-based and Vim lines are
+        -- 1-based
+        table.insert(ranges, {def_name, def_type, indent, start_row + 1, start_col, end_row + 1, end_col})
+        indent = indent + 1
       end
-      local start_row, start_col, end_row, end_col = tsdef.definition_node:range()
-      local def_name, def_type = M.get_definition_info(tsdef)
-      -- N.B. Add + 1 to rows because TreeSitter is 0-based and Vim lines are
-      -- 1-based
-      table.insert(ranges, {def_name, def_type, indent, start_row + 1, start_col, end_row + 1, end_col})
-      indent = indent + 1
     end
-    if tsdef.children then
+    if tsdef and tsdef.children then
       for _, child in pairs(tsdef.children) do
         _build_outline(child, indent)
       end
@@ -228,9 +238,13 @@ function M.set_highlight(highlight_info)
   for def_type, def_type_defs in pairs(highlight_info) do
     -- Create syntax group called sidekick$sanitize(def_type)
     local str = "sidekick" .. def_type:gsub("%.", "_")
-    local syntax_group = "syntax keyword  " .. str .. " " ..  table.concat(def_type_defs, " ")
-    table.insert(syntax_groups, str)
-    vim.cmd(syntax_group)
+    for _, def_type_def in ipairs(def_type_defs) do
+      log.debug(def_type_def)
+      local syntax_group = "syntax match " .. str .. " /" .. def_type_def .. '/'
+      --local syntax_group = "syntax keyword  " .. str .. " " ..  table.concat(def_type_defs, " ")
+      table.insert(syntax_groups, str)
+      vim.cmd(syntax_group)
+    end
 
     -- Associate that syntax group with existing types
     -- TODO (elpiloto): Make "String" configurable.
@@ -241,3 +255,4 @@ function M.set_highlight(highlight_info)
 end
 
 return M
+

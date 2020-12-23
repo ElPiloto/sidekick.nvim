@@ -15,6 +15,14 @@ It requires neovim (~nightly build) and `nvim-treesitter`.
 
 ![Sidekick Demo](./.github/images/sidekick_demo.jpg)
 
+
+### Customize what goes into the outline window:
+
+Sidekick normally displays "matches" to queries defined in nvim-treesitter's `queries/$LANG/locals.scm` query file. This typically contains definitions (e.g. function, parameter), etc. and scope information. You can also write your own query files which will be picked up and displayed in sidekick's outline window. Here's what you need to do:
+1. Add `queries/$LANG/sidekick.scm` somewhere in your runtimepath.
+2. In your sidekick.scm file, make sure to use `definition.$MY_CUSTOM_DEF_TYPE` to capture the values you want displayed in sidekick.
+3. Modify `g:sidekick_printable_def_types` to include `$MY_CUSTOM_DEF_TYPE`
+
 ### Current configuration settings (WIP)
 
 Values below reflect sensible defaults.  If you do not have a font patched with nerd fonts, you should change the unicode/icons below.
@@ -91,15 +99,14 @@ let g:sidekick_right_bracket = "\u27eb"
 - [ ] After jumping to definition, scroll screen upwards (add config option to control this).
 - [ ] Document highlight groups so that colorschemes can explicitly support them.
 - [ ] Learn how to make tests for your plugin and test your code, guy.
-- [X] Use treesitter to generate outline for custom queries (~~`queries/$LANG/sidekick.scm`~~ `queries/$LANG/locals.scm`)
+- [X] Use treesitter to generate outline for custom queries (`queries/$LANG/sidekick.scm` ~~`queries/$LANG/locals.scm`~~)
 - [X] Use treesitter to generate outline for "standard" queries (`queries/$LANG/locals.scm`)
 - [ ] Let users specify what definitions get shown for standard queries.
 - [X] Display line number after definitions in outline window.
 - [X] Add mouse support: double-click will either jump to definition or toggle fold via `:normal za`
 - [ ] Setup custom sidekick query files for places where our needs are in conflict with locals.scm and we want to extend it without potentially messing up other functionality.
   - [ ] Add everything we've "fixed" (or possibly broken) with lua and python locals.scm locally.
-  - [ ] Make query file name customizable: buffer-level, if not available, global option, if not available 'locals.scm'.
-  - [ ] Demo on busted.lua using autocmd.
+  - [ ] ~~Make query file name customizable: buffer-level, if not available, global option, if not available 'locals.scm'.~~ NO NEED FOR THIS.
 - [ ] Add "ignore" filetype config option where sidekick leaves outline up (e.g. nerdtree, startify, etc.)
 - [ ] Ignore jump to quickfix or location list.
 - [ ] Add option to not print certain identifiers (e.g. if printing @definition.var, ignore variables defined as "_").
