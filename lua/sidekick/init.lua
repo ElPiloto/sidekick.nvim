@@ -450,7 +450,7 @@ function M.foldexpr()
   local line_num = vim.v.lnum - 1
 
   -- Set no fold for anything in the header.
-  if line_num < 8 then
+  if line_num < 7 then
     return "0"
   end
   local before, line, after = get_fold_context(line_num)
