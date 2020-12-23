@@ -11,6 +11,10 @@ fun! SideKickNoReload()
 	lua require("sidekick").run()
 endfun
 
+fun! SideKickClose()
+	lua require("sidekick").close()
+endfun
+
 fun! s:AddDefaultSettings()
 	if !exists('g:sidekick_update_on_buf_write') | let g:sidekick_update_on_buf_write = 1 | endif
 	if !exists('g:sidekick_printable_def_types') | let g:sidekick_printable_def_types = ['function', 'class', 'type', 'module', 'parameter', 'method', 'field', 'flag'] | endif

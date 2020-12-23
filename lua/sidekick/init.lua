@@ -169,20 +169,42 @@ local function run_on_buf_write(buf)
   vim.cmd('augroup END')
 end
 
+
 -- Removes current tab from list of open tabs so we don't try to open sidekick
 -- when it has been closed.
-function M.remove_tab()
+local function remove_tab(tabpage)
+  M.open_tabs[tabpage] = nil
+  -- TODO(elpiloto): Consider clearing out M.open_windows
+  local augroup = M._make_augroup_name(tabpage)
+  -- Delete all sidekick autocommands set up for this tab.
+  vim.cmd('augroup ' .. augroup)
+  vim.cmd('au!')
+  vim.cmd('augroup ' .. augroup)
+end
+
+
+-- Checks if current window closed is sidekick and removes sidekick from this
+-- tab if so.
+function M.remove_tab_on_win_close()
   local tabpage = api.nvim_get_current_tabpage()
   local win_name = M._make_window_name(tabpage)
   local win_id = vim.fn.expand('<afile>')
   if win_id == tostring(M.open_windows[win_name]) then
-    M.open_tabs[tabpage] = nil
-    -- TODO(elpiloto): Consider clearing out M.open_windows
-    local augroup = M._make_augroup_name(tabpage)
-    -- Delete all sidekick autocommands set up for this tab.
-    vim.cmd('augroup ' .. augroup)
-    vim.cmd('au!')
-    vim.cmd('augroup ' .. augroup)
+    remove_tab(tabpage)
+  end
+end
+
+
+-- Closes sidekick window for current tabpage.
+function M.close()
+  local tabpage = api.nvim_get_current_tabpage()
+  local win_name = M._make_window_name(tabpage)
+  if M.open_tabs[tabpage] then
+    -- Probably don't need this.
+    if M.open_windows[win_name] then
+      remove_tab(tabpage)
+      vim.api.nvim_win_close(M.open_windows[win_name], true)
+    end
   end
 end
 
@@ -191,7 +213,7 @@ local function cleanup_on_close()
   local tabpage = api.nvim_get_current_tabpage()
   local augroup = M._make_augroup_name(tabpage)
   vim.cmd('augroup ' .. augroup)
-  local lua_callback_cmd = 'lua require(\'sidekick\').remove_tab()'
+  local lua_callback_cmd = 'lua require(\'sidekick\').remove_tab_on_win_close()'
   local full_cmd = 'autocmd! ' .. augroup .. ' WinClosed * ' .. lua_callback_cmd
   vim.cmd(full_cmd)
   vim.cmd('augroup END')
