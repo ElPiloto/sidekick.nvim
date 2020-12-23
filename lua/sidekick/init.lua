@@ -24,7 +24,7 @@ local function split_str(str)
   return lines
 end
 
-local function getSidekickText()
+local function get_sidekick_header_text()
   -- luacheck: push ignore 613 (trailing whitespaces)
   -- luacheck: push ignore 611 Empty line
   -- TODO(elpiloto): Figure out why we are stripping blank lines from the bottom
@@ -352,7 +352,7 @@ local function open_outline_window(do_kick, matches, highlight_info)
   end
 
   -- Display some ascii art text
-  local header, header_and_dude, header_and_poof = getSidekickText()
+  local header, header_and_dude, header_and_poof = get_sidekick_header_text()
   api.nvim_buf_set_option(buf, 'modifiable', true)
   api.nvim_buf_set_lines(buf, 0, #header_and_dude, false, header_and_dude)
 
@@ -584,7 +584,7 @@ function M.run(should_toggle, entry_point)
     local tabpage = api.nvim_get_current_tabpage()
     local win_name = M._make_window_name(tabpage)
     if M.open_windows[win_name] then
-      local header, _, _ = getSidekickText()
+      local header, _, _ = get_sidekick_header_text()
       local msg = 'No parser for filetype: ' .. filetype
       local debug_msg = msg .. ', entered via ' .. tostring(entry_point)
       log.debug(debug_msg)
