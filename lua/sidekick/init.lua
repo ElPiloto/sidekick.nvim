@@ -163,7 +163,7 @@ local function run_on_buf_write(buf)
   -- TODO(elpiloto): Make util function for adding autocommands.
   local augroup = M._make_augroup_name(tabpage)
   vim.cmd('augroup ' .. augroup)
-  local lua_callback_cmd = 'lua require(\'sidekick\').run()'
+  local lua_callback_cmd = 'lua require(\'sidekick\').run(false)'
   local full_cmd = 'autocmd! ' .. augroup .. ' BufWritePost <buffer=' .. tostring(buf) .. '> ' .. lua_callback_cmd
   vim.cmd(full_cmd)
   vim.cmd('augroup END')
@@ -180,6 +180,13 @@ local function remove_tab(tabpage)
   vim.cmd('augroup ' .. augroup)
   vim.cmd('au!')
   vim.cmd('augroup ' .. augroup)
+end
+
+
+-- Tells us if sidekick is open for the current tab.
+local function is_open()
+  local tabpage = api.nvim_get_current_tabpage()
+  return M.open_tabs[tabpage]
 end
 
 
@@ -227,7 +234,7 @@ function M.maybe_run(entry_point)
     local buf = api.nvim_get_current_buf()
     local win = api.nvim_get_current_win()
     if M.last_parsed_buf ~= buf then
-      M.run(entry_point)
+      M.run(false, entry_point)
       api.nvim_set_current_win(win)
     end
   end
@@ -556,8 +563,12 @@ function M.jump_to_definition()
 end
 
 
-function M.run(entry_point)
+function M.run(should_toggle, entry_point)
   local buf = api.nvim_get_current_buf()
+  if should_toggle and is_open() then
+    M.close()
+    return
+  end
   if not sk_outline.can_parse_buffer(buf) then
     -- If we cannot modify it, it is likely a buffer belonging to some plugin
     -- e.g. NERDTree, Startify
