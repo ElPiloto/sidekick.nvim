@@ -109,7 +109,7 @@ let g:sidekick_right_bracket = "\u27eb"
 - [X] Outline is incomplete: functions are missing - may be a max line issue.
 - [X] Outline is cut off for first entry.
 - [X] Window contains parts of multiple outlines when switching windows (clear sidekick buffer).
-- [ ] First entry is not foldable.
+- [X] First entry is not foldable.
 - [ ] Add auto-command to run Sidekick on BufEnter for buffers that cannot be parsed.
 
 ### Roadmap
