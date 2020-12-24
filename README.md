@@ -85,15 +85,13 @@ let g:sidekick_right_bracket = "\u27eb"
 - [ ] Improve plugin configs
   - [ ] Add supported options to documentation.
   - [X] Add error-checking / default values.
-- [ ] Decouple rendering from outline in order to:
-  1. Allow smarter rendering (e.g. isolated top-level nodes should be displayed as `outerNode`)
-  2. Interface to allow other tag definition backends (e.g. LSP or ctags)
+- [X] Allow smarter rendering (e.g. isolated top-level nodes should be displayed as `outerNode`)
 - [ ] After jumping to definition, scroll screen upwards (add config option to control this).
 - [ ] Document highlight groups so that colorschemes can explicitly support them.
 - [ ] Learn how to make tests for your plugin and test your code, guy.
 - [X] Use treesitter to generate outline for custom queries (~~`queries/$LANG/sidekick.scm`~~ `queries/$LANG/locals.scm`)
 - [X] Use treesitter to generate outline for "standard" queries (`queries/$LANG/locals.scm`)
-- [ ] Let users specify what definitions get shown for standard queries.
+- [X] Let users specify what definitions get shown for standard queries.
 - [X] Display line number after definitions in outline window.
 - [X] Add mouse support: double-click will either jump to definition or toggle fold via `:normal za`
 - [ ] Setup custom sidekick query files for places where our needs are in conflict with locals.scm and we want to extend it without potentially messing up other functionality.
@@ -124,3 +122,5 @@ let g:sidekick_right_bracket = "\u27eb"
 - [ ] Generate outline based on tags file.
 - [ ] When using treesitter for outline *and* LSP is available, pop-up documentation for symbol.
 - [ ] Generate outline based on LSP.
+- [ ] Decouple rendering from outline in order to:
+  1. Interface to allow other tag definition backends (e.g. LSP or ctags)

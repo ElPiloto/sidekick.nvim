@@ -381,7 +381,7 @@ end
 
 local function entry_prefix(indent_level, is_last_node)
   local prefix = '  '
-  if is_last_node then
+  if is_last_node or indent_level == 0 then
     prefix = prefix .. string.rep(' ', indent_level*2) .. vim.g.sidekick_outer_node_icon .. ' '
   else
     prefix = prefix .. string.rep(' ', indent_level*2) .. vim.g.sidekick_inner_node_icon .. ' '
