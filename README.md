@@ -42,6 +42,14 @@ let g:sidekick_def_type_icons = {
 \    'field': "\uf6de",
 \ }
 
+" Tells sidekick to ignore certain definitions based on definition type and text. For example, the setting below ignores any
+" definitions of type 'var' that are named "_" or "self" and ignores any parameters that are named "self". It is a dict from
+" definition types to a dict of specific text values to exclude for that definition type.
+let g:sidekick_ignore_by_def_type = {
+\    'var': {"_": 1, "self": 1},
+\    'parameters': {"self": 1},
+}
+
 " Indicates which definition types should have their line number displayed in the outline window.
 let g:sidekick_line_num_def_types = {
 \    'class': 1,
@@ -100,7 +108,7 @@ let g:sidekick_right_bracket = "\u27eb"
   - [ ] Demo on busted.lua using autocmd.
 - [ ] Add "ignore" filetype config option where sidekick leaves outline up (e.g. nerdtree, startify, etc.)
 - [ ] Ignore jump to quickfix or location list.
-- [ ] Add option to not print certain identifiers (e.g. if printing @definition.var, ignore variables defined as "_").
+- [X] Add option to not print certain identifiers (e.g. if printing @definition.var, ignore variables defined as "_").
 
 ### BUGS
 

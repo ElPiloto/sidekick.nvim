@@ -83,7 +83,7 @@ function M.get_definitions_and_scopes_in_match(match, query)
       )
     end
   else
-      associated = nil
+    associated = nil
   end
   return defs, scopes, associated
 end
@@ -189,6 +189,13 @@ function M.get_definition_info(tsdef)
 end
 
 
+local function should_ignore(def_type, def_text)
+  local ignores = vim.g.sidekick_ignore_by_def_type
+  def_type = def_type:gsub("definition.", "")
+  return ignores[def_type] and ignores[def_type][def_text]
+end
+
+
 -- Dict: key = definition_type, value = list of definition identifiers
 function M.build_outline(root)
   local highlight_info = {}
@@ -200,16 +207,19 @@ function M.build_outline(root)
     if tsdef.definition_node then
       local def_text = ts_utils.get_node_text(tsdef.definition_node)[1]
       local def_type = tsdef.definition_type
-      if not highlight_info[def_type] then
-        highlight_info[def_type] = {def_text}
-      else
-        table.insert(highlight_info[def_type], def_text)
+      local ignore = should_ignore(def_type, def_text)
+      if not ignore then
+        if not highlight_info[def_type] then
+          highlight_info[def_type] = {def_text}
+        else
+          table.insert(highlight_info[def_type], def_text)
+        end
+        local start_row, start_col, end_row, end_col = tsdef.definition_node:range()
+        local def_name, def_type = M.get_definition_info(tsdef)
+        -- N.B. Add + 1 to rows because TreeSitter is 0-based and Vim lines are
+        -- 1-based
+        table.insert(ranges, {def_name, def_type, indent, start_row + 1, start_col, end_row + 1, end_col})
       end
-      local start_row, start_col, end_row, end_col = tsdef.definition_node:range()
-      local def_name, def_type = M.get_definition_info(tsdef)
-      -- N.B. Add + 1 to rows because TreeSitter is 0-based and Vim lines are
-      -- 1-based
-      table.insert(ranges, {def_name, def_type, indent, start_row + 1, start_col, end_row + 1, end_col})
       indent = indent + 1
     end
     if tsdef.children then
@@ -241,3 +251,4 @@ function M.set_highlight(highlight_info)
 end
 
 return M
+

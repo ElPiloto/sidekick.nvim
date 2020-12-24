@@ -33,6 +33,12 @@ fun! s:AddDefaultSettings()
 					\    'flag': "\uf73a",
 					\ }
 	endif
+	if !exists('g:sidekick_ignore_by_def_type')
+		let g:sidekick_ignore_by_def_type = {
+					\    'var': {"_": 1, "self": 1},
+					\    'parameter': {"self": 1},
+					\ }
+	endif
 
 	if !exists('g:sidekick_line_num_def_types')
 		let g:sidekick_line_num_def_types = {
