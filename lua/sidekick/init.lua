@@ -190,15 +190,12 @@ local function is_open()
 end
 
 
--- Checks if current window closed is sidekick and removes sidekick from this
--- tab if so.
-function M.remove_tab_on_win_close()
+--If sidekick buffer is being unloaded (either because someone opened a new file
+--in our window or the window is being closed), let's close sidekick for this
+--tab.
+function M.remove_tab_on_buf_leave()
   local tabpage = api.nvim_get_current_tabpage()
-  local win_name = M._make_window_name(tabpage)
-  local win_id = vim.fn.expand('<afile>')
-  if win_id == tostring(M.open_windows[win_name]) then
-    remove_tab(tabpage)
-  end
+  remove_tab(tabpage)
 end
 
 
@@ -215,16 +212,6 @@ function M.close()
   end
 end
 
---Keep track of what tabs have open pages.
-local function cleanup_on_close()
-  local tabpage = api.nvim_get_current_tabpage()
-  local augroup = M._make_augroup_name(tabpage)
-  vim.cmd('augroup ' .. augroup)
-  local lua_callback_cmd = 'lua require(\'sidekick\').remove_tab_on_win_close()'
-  local full_cmd = 'autocmd! ' .. augroup .. ' WinClosed * ' .. lua_callback_cmd
-  vim.cmd(full_cmd)
-  vim.cmd('augroup END')
-end
 
 -- Runs if sidekick is open for the current tabpage and buffer can be parsed but
 -- hasn't been.
@@ -255,6 +242,16 @@ local function run_on_buf_enter()
   vim.cmd('augroup END')
 end
 
+local function close_on_buf_win_leave()
+  local tabpage = api.nvim_get_current_tabpage()
+  local augroup = M._make_augroup_name(tabpage)
+  vim.cmd('augroup ' .. augroup)
+  local lua_callback_cmd = 'lua require(\'sidekick\').remove_tab_on_buf_leave()'
+  local full_cmd = 'autocmd! ' .. augroup .. ' BufWinLeave <buffer> ' .. lua_callback_cmd
+  vim.cmd(full_cmd)
+  vim.cmd('augroup END')
+end
+
 local function make_outline_window(win_name)
   --local win_name = 'Sidekick' .. tostring(api.nvim_get_current_buf())
   api.nvim_command('keepalt botright vertical 1 split ' .. win_name)
@@ -268,7 +265,7 @@ local function make_outline_window(win_name)
   api.nvim_buf_set_option(buf, 'buftype', 'nofile')
   api.nvim_buf_set_option(buf, 'swapfile', false)
   api.nvim_win_set_option(win, 'wrap', false)
-  vim.bo.buflisted = true
+  vim.bo.buflisted = false
   vim.bo.modifiable = false
   vim.bo.textwidth = 0
   vim.bo.filetype = 'sidekick'
@@ -370,11 +367,8 @@ local function open_outline_window(do_kick, matches, highlight_info)
   sk_outline.set_highlight(highlight_info)
   set_icon_highlights()
   add_keymappings()
-  cleanup_on_close()
   --Track which windows we have been opened in.
   M.open_tabs[tabpage] = true
-  -- Also set sidekick_def_type_icons and outline as highlights
-  --sidekick_outer_node_icon
   return win, buf
 end
 
@@ -614,6 +608,7 @@ function M.run(should_toggle, entry_point)
     run_on_buf_write(buf)
   end
   run_on_buf_enter()
+  close_on_buf_win_leave()
 end
 
 return M
