@@ -422,6 +422,8 @@ function M.foldtext()
   -- Leaving this here just in case it's useful.
   -- local winwidth  = api.nvim_win_get_width(0)
   local line, _ = (api.nvim_buf_get_lines(0, foldstart - 1, foldstart, false)[1]):gsub('^"', ' ')
+  local folded_icon = vim.g.sidekick_outer_node_folded_icon
+  line = line:gsub(vim.g.sidekick_outer_node_icon, folded_icon)
   return line
 end
 
@@ -457,22 +459,18 @@ function M.foldexpr()
   local before_indent = get_indent_level(before)
   local line_indent = get_indent_level(line)
   local after_indent = get_indent_level(after)
-  -- If we're a blank line or surrounded by blank lines, we are not a fold.
+  -- check we're a blank line or surrounded by blank lines, we are not a fold.
   if line == '' or (before == '' and after == '') then
     return "0"
-  elseif before_indent then
+  elseif before_indent then  --there is a line before us
     -- We're indented and have children.
-    if line_indent == before_indent and line_indent < after_indent then
+    if (line_indent == before_indent or before_indent == 0) and line_indent < after_indent then
       return ">" .. tostring(line_indent)
-        -- we're indented but there's nothing after us
-    elseif line_indent > before_indent and not after then
-      return tostring(before_indent)
-    else
-      return tostring(line_indent)
-    end
   end
-  return ">1"
+  end
+  return "="
 end
+
 
 local function get_outline()
   -- TODO(ElPiloto): check filetype is parsable, otherwise return nil

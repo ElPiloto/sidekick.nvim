@@ -64,9 +64,10 @@ let g:sidekick_line_num_separator = " "
 " What to display to the left and right of the line number
 let g:sidekick_line_num_left = "\ue0b2"
 let g:sidekick_line_num_right = "\ue0b0"
-" What to display before outer vs inner definitions
-let g:sidekick_inner_node_icon = "\u251c\u2500\u25B8"
-let g:sidekick_outer_node_icon = "\u2570\u2500\u25B8"
+" What to display before outer vs inner vs folded outer definitions
+let g:sidekick_outer_node_folded_icon = "\u2570\u2500\u25C9"
+let g:sidekick_outer_node_icon = "\u2570\u2500\u25CB"
+let g:sidekick_inner_node_icon = "\u251c\u2500\u25CB"
 " What to display to left and right of def_type_icon
 let g:sidekick_left_bracket = "\u27ea"
 let g:sidekick_right_bracket = "\u27eb"

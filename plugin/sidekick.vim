@@ -53,8 +53,9 @@ fun! s:AddDefaultSettings()
 	if !exists('g:sidekick_line_num_separator') | let g:sidekick_line_num_separator = " " | endif
 	if !exists('g:sidekick_line_num_left') | let g:sidekick_line_num_left = "\ue0b2" | endif
 	if !exists('g:sidekick_line_num_right') | let g:sidekick_line_num_right = "\ue0b0" | endif
-	if !exists('g:sidekick_inner_node_icon') | let g:sidekick_inner_node_icon = "\u251c\u2500\u25B8" | endif
-	if !exists('g:sidekick_outer_node_icon') | let g:sidekick_outer_node_icon = "\u2570\u2500\u25B8" | endif
+	if !exists('g:sidekick_inner_node_icon') | let g:sidekick_inner_node_icon = "\u251c\u2500\u25CB" | endif
+	if !exists('g:sidekick_outer_node_icon') | let g:sidekick_outer_node_icon = "\u2570\u2500\u25CB" | endif
+	if !exists('g:sidekick_outer_node_folded_icon') | let g:sidekick_outer_node_folded_icon = "\u2570\u2500\u25C9" | endif
 	if !exists('g:sidekick_left_bracket') | let g:sidekick_left_bracket = "\u27ea" | endif
 	if !exists('g:sidekick_right_bracket') | let g:sidekick_right_bracket = "\u27eb" | endif
 
